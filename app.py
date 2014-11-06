@@ -7,9 +7,12 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
+db_path = 'sqlite:///' + os.path.join(app.root_path, 'database.db')
+
 CONFIG_DICT = dict(
-    SQLALCHEMY_DATABASE_URI='sqlite:///' + os.path.join(app.root_path, 'database.db'),
+    SQLALCHEMY_DATABASE_URI=db_path,
     SECRET_KEY='development secret key',
+    WTF_CSRF_SECRET_KEY='a random string',
     USERNAME='admin',
     PASSWORD='default'
 )
@@ -40,21 +43,40 @@ class Book(db.Model):
         return '<Book %r>' % self.name
 
 
+AuthorForm = model_form(Author, base_class=Form, db_session=db.session)
+BookForm = model_form(Book, base_class=Form, db_session=db.session)
+
+
 @app.route('/')
 def index():
-    return render_template('index.html')
     authors = Author.query.all()
     books = Book.query.all()
 
     return render_template('index.html', authors=authors, books=books)
 
+
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
-    return render_template('add_book.html')
+    form = BookForm(request.form)
+    if form.validate_on_submit():
+        book = Book(name=form.name.data)
+        db.session.add(book)
+        db.session.commit()
+        flash('Book has been added.')
+        return redirect(url_for('index'))
+    return render_template('add_book.html', form=form)
+
 
 @app.route('/add_author', methods=['GET', 'POST'])
 def add_author():
-    return render_template('add_author.html')
+    form = AuthorForm(request.form)
+    if form.validate_on_submit():
+        author = Author(fullname=form.fullname.data)
+        db.session.add(author)
+        db.session.commit()
+        flash('Book has been added.')
+        return redirect(url_for('index'))
+    return render_template('add_author.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
