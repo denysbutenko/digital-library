@@ -1,16 +1,44 @@
+import os
+
 from flask import Flask
-from flask import render_template
 from flask import render_template, request, flash, redirect, session, url_for
+from flask.ext.sqlalchemy import SQLAlchemy
+
 
 app = Flask(__name__)
 
 CONFIG_DICT = dict(
+    SQLALCHEMY_DATABASE_URI='sqlite:///' + os.path.join(app.root_path, 'database.db'),
     SECRET_KEY='development secret key',
     USERNAME='admin',
     PASSWORD='default'
 )
 
 app.config.update(CONFIG_DICT)
+db = SQLAlchemy(app)
+
+
+class Author(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    fullname = db.Column(db.String(120))
+
+    def __init__(self, fullname):
+        self.fullname = fullname
+
+    def __repr__(self):
+        return '<Author %r>' % self.fullname
+
+
+class Book(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return '<Book %r>' % self.name
+
 
 @app.route('/')
 def index():

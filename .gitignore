@@ -55,3 +55,4 @@ target/
 
 # Virtual Env
 venv/
+*.db
