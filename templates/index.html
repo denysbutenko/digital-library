@@ -2,4 +2,28 @@
 
 {% block content %}
   <h1>Hello World!</h1>
+  <div class="row">
+    <div class="col-sm-6">
+      <h4>Books</h4>
+      <ul>
+        {% for book in books %}
+          <li>{{ book.name }}</li>
+        {% else %}
+          <li>No books.</li>
+        {% endfor %}
+      </ul>
+      <a href="{{ url_for('add_book') }}" class="btn btn-primary">Add book</a>
+    </div>
+    <div class="col-sm-6">
+      <h4>Authors</h4>
+      <ul>
+        {% for author in authors %}
+          <li>{{ author.fullname }}</li>
+        {% else %}
+          <li>No authors.</li>
+        {% endfor %}
+      </ul>
+      <a href="{{ url_for('add_author') }}" class="btn btn-primary">Add author</a>
+    </div>
+  </div>
 {% endblock %}

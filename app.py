@@ -43,6 +43,18 @@ class Book(db.Model):
 @app.route('/')
 def index():
     return render_template('index.html')
+    authors = Author.query.all()
+    books = Book.query.all()
+
+    return render_template('index.html', authors=authors, books=books)
+
+@app.route('/add_book', methods=['GET', 'POST'])
+def add_book():
+    return render_template('add_book.html')
+
+@app.route('/add_author', methods=['GET', 'POST'])
+def add_author():
+    return render_template('add_author.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
