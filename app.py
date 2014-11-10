@@ -1,10 +1,13 @@
 import os
+import flask_whooshalchemy
 from functools import wraps
 from flask import Flask
 from flask import render_template, request, flash, redirect, session, url_for
 from flask.ext.wtf import Form
 from flask.ext.sqlalchemy import SQLAlchemy
+from wtforms import StringField, SelectField
 from wtforms.ext.sqlalchemy.orm import model_form
+from wtforms.validators import DataRequired
 
 
 app = Flask(__name__)
@@ -13,6 +16,8 @@ db_path = 'sqlite:///' + os.path.join(app.root_path, 'database.db')
 
 CONFIG_DICT = dict(
     SQLALCHEMY_DATABASE_URI=db_path,
+    WHOOSH_BASE=db_path,
+    MAX_SEARCH_RESULTS=10,
     SECRET_KEY='development secret key',
     WTF_CSRF_SECRET_KEY='a random string',
     USERNAME='admin',
@@ -31,6 +36,8 @@ association_table = db.Table(
 
 class Author(db.Model):
     __tablename__ = 'author'
+    __searchable__ = ['fullname']
+
     id = db.Column(db.Integer, primary_key=True)
     fullname = db.Column(db.String(120))
     books = db.relationship('Book', secondary=association_table, backref=db.backref('authors', lazy='dynamic'))
@@ -38,24 +45,40 @@ class Author(db.Model):
     def __init__(self, fullname):
         self.fullname = fullname
 
+    def get_name(self):
+        return self.fullname
+
     def __repr__(self):
         return '<Author %r>' % self.fullname
 
 
 class Book(db.Model):
     __tablename__ = 'book'
+    __searchable__ = ['name']
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
 
     def __init__(self, name):
         self.name = name
 
+    def get_name(self):
+        return self.name
+
     def __repr__(self):
         return '<Book %r>' % self.name
 
 
+flask_whooshalchemy.whoosh_index(app, Author)
+flask_whooshalchemy.whoosh_index(app, Book)
+
 AuthorForm = model_form(Author, base_class=Form, db_session=db.session)
 BookForm = model_form(Book, base_class=Form, db_session=db.session)
+
+
+class SearchForm(Form):
+    query = StringField('query', validators=[DataRequired()])
+    type = SelectField('type', default="book", choices=[('book', 'Books'), ('author', 'Authors')])
 
 
 # Initial data for application
@@ -88,9 +111,10 @@ def login_required(f):
 
 @app.route('/')
 def index():
+    search_form = SearchForm()
     authors = Author.query.all()
     books = Book.query.all()
-    return render_template('index.html', authors=authors, books=books)
+    return render_template('index.html', authors=authors, books=books, search_form=search_form)
 
 
 @app.route('/books/new', methods=['GET', 'POST'])
@@ -163,6 +187,21 @@ def remove_author(author_id):
     db.session.commit()
     flash('Author has been deleted.')
     return redirect(url_for('index'))
+
+
+@app.route('/search_results/')
+def search_results():
+    query = request.args.get('query')
+    category = request.args.get('type')
+    if category == 'book':
+        results = Book.query.whoosh_search(query, app.config['MAX_SEARCH_RESULTS']).all()
+    elif category == 'author':
+        results = Author.query.whoosh_search(query, app.config['MAX_SEARCH_RESULTS']).all()
+    else:
+        raise Exception('Error category')
+
+    return render_template('search_results.html', query=query, category=category,
+                           results=results)
 
 
 @app.route('/login', methods=['GET', 'POST'])

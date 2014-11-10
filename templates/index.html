@@ -3,6 +3,23 @@
 {% block content %}
   <h1>Hello World!</h1>
   <div class="row">
+    <div class="col-md-12" style="margin-bottom: 15px;">
+      <form class="" action="{{ url_for('search_results') }}" role="search">
+        <div class="row">
+          <div class="col-md-8">
+            {{ search_form.query(class_="form-control", placeholder="Enter author or book name.") }}
+          </div>
+          <div class="col-md-2">
+            {{ search_form.type(class_="form-control") }}
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-block btn-primary btn-search" disabled><i class="glyphicon glyphicon-search"></i> Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row">
     <div class="col-sm-6">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -18,7 +35,8 @@
 
               <div class="pull-right remove-item" style="display: none;">
                 <form action="{{ url_for('remove_book', book_id=book.id) }}" method="post">
-                  <button class="btn btn-danger btn-xs" type="submit"><i class="glyphicon glyphicon-remove"></i></button>
+                  <button class="btn btn-danger btn-xs" type="submit"><i class="glyphicon glyphicon-remove"></i>
+                  </button>
                 </form>
               </div>
             </li>
@@ -43,7 +61,8 @@
 
               <div class="pull-right remove-item" style="display: none;">
                 <form action="{{ url_for('remove_author', author_id=author.id) }}" method="post">
-                  <button class="btn btn-danger btn-xs" type="submit"><i class="glyphicon glyphicon-remove"></i></button>
+                  <button class="btn btn-danger btn-xs" type="submit"><i class="glyphicon glyphicon-remove"></i>
+                  </button>
                 </form>
               </div>
             </li>

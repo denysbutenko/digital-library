@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Search results for "{{ query }}" in "{{ category }}":</h1>
+  <ol>
+  {% for object in results %}
+    <li>{{ object.get_name() }}</li>
+  {% endfor %}
+  </ol>
+{% endblock %}
