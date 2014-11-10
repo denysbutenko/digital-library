@@ -47,6 +47,22 @@ AuthorForm = model_form(Author, base_class=Form, db_session=db.session)
 BookForm = model_form(Book, base_class=Form, db_session=db.session)
 
 
+# Initial data for application
+def init_db():
+    authors = ['Mark Lutz', 'Mark Pilgrim', 'Richard L. Halterman', 'Al Sweigart', 'Rafe Kettler', 'Robert Picard',
+               'Miguel Grinberg']
+    books = ['Learning Python', 'Dive into Python 2', 'Dive into Python 3', 'Learning to Program with Python',
+             'Hacking Secret Cyphers with Python', 'Invent Your Own Computer Games With Python',
+             'A Guide to Python\'s Magic Methods']
+    for author_name in authors:
+        author = Author(author_name)
+        db.session.add(author)
+    for book_name in books:
+        book = Book(book_name)
+        db.session.add(book)
+    db.session.commit()
+
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
