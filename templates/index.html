@@ -32,13 +32,14 @@
           {% for book in books %}
             <li class="list-group-item">
               <a href="{{ url_for('edit_book', book_id=book.id) }}">{{ book.name }}</a>
-
-              <div class="pull-right remove-item" style="display: none;">
-                <form action="{{ url_for('remove_book', book_id=book.id) }}" method="post">
-                  <button class="btn btn-danger btn-xs" type="submit"><i class="glyphicon glyphicon-remove"></i>
-                  </button>
-                </form>
-              </div>
+              {% if session.logged_in %}
+                <div class="pull-right remove-item" style="display: none;">
+                  <form action="{{ url_for('remove_book', book_id=book.id) }}" method="post">
+                    <button class="btn btn-danger btn-xs" type="submit"><i class="glyphicon glyphicon-remove"></i>
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
             </li>
           {% else %}
             <li class="list-group-item">No books.</li>
