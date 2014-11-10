@@ -1,5 +1,5 @@
 import os
-
+from functools import wraps
 from flask import Flask
 from flask import render_template, request, flash, redirect, session, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -47,6 +47,18 @@ AuthorForm = model_form(Author, base_class=Form, db_session=db.session)
 BookForm = model_form(Book, base_class=Form, db_session=db.session)
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            if session['logged_in']:
+                return f(*args, **kwargs)
+        except KeyError:
+            return redirect(url_for('login'))
+
+    return decorated_function
+
+
 @app.route('/')
 def index():
     authors = Author.query.all()
@@ -55,6 +67,7 @@ def index():
 
 
 @app.route('/books/new', methods=['GET', 'POST'])
+@login_required
 def add_book():
     form = BookForm(request.form)
     if form.validate_on_submit():
@@ -67,6 +80,7 @@ def add_book():
 
 
 @app.route("/books/<int:book_id>/edit", methods=['GET', 'POST'])
+@login_required
 def edit_book(book_id):
     book = Book.query.get(book_id)
     form = BookForm(request.form, obj=book)
@@ -79,6 +93,7 @@ def edit_book(book_id):
 
 
 @app.route("/books/<int:book_id>/remove", methods=['POST'])
+@login_required
 def remove_book(book_id):
     book = Book.query.get(book_id)
     db.session.delete(book)
@@ -88,6 +103,7 @@ def remove_book(book_id):
 
 
 @app.route('/authors/new', methods=['GET', 'POST'])
+@login_required
 def add_author():
     form = AuthorForm(request.form)
     if form.validate_on_submit():
@@ -100,6 +116,7 @@ def add_author():
 
 
 @app.route("/author/<int:author_id>/edit")
+@login_required
 def edit_author(author_id):
     author = Author.query.get(author_id)
     form = AuthorForm(obj=author)
@@ -112,6 +129,7 @@ def edit_author(author_id):
 
 
 @app.route("/authors/<int:author_id>/remove", methods=['POST'])
+@login_required
 def remove_author(author_id):
     author = Author.query.get(author_id)
     db.session.delete(author)
