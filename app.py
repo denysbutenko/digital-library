@@ -2,7 +2,9 @@ import os
 from functools import wraps
 from flask import Flask
 from flask import render_template, request, flash, redirect, session, url_for
+from flask.ext.wtf import Form
 from flask.ext.sqlalchemy import SQLAlchemy
+from wtforms.ext.sqlalchemy.orm import model_form
 
 
 app = Flask(__name__)
@@ -20,10 +22,18 @@ CONFIG_DICT = dict(
 app.config.update(CONFIG_DICT)
 db = SQLAlchemy(app)
 
+association_table = db.Table(
+    'authors_books',
+    db.Column('book_id', db.Integer, db.ForeignKey('book.id')),
+    db.Column('author_id', db.Integer, db.ForeignKey('author.id'))
+)
+
 
 class Author(db.Model):
+    __tablename__ = 'author'
     id = db.Column(db.Integer, primary_key=True)
     fullname = db.Column(db.String(120))
+    books = db.relationship('Book', secondary=association_table, backref=db.backref('authors', lazy='dynamic'))
 
     def __init__(self, fullname):
         self.fullname = fullname
@@ -33,6 +43,7 @@ class Author(db.Model):
 
 
 class Book(db.Model):
+    __tablename__ = 'book'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
 
