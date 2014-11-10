@@ -4,26 +4,54 @@
   <h1>Hello World!</h1>
   <div class="row">
     <div class="col-sm-6">
-      <h4>Books</h4>
-      <ul>
-        {% for book in books %}
-          <li>{{ book.name }}</li>
-        {% else %}
-          <li>No books.</li>
-        {% endfor %}
-      </ul>
-      <a href="{{ url_for('add_book') }}" class="btn btn-primary">Add book</a>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="panel-title">Books</span>
+          <span class="pull-right">
+            <a class="btn btn-success btn-xs" href="{{ url_for('add_book') }}"><i class="glyphicon glyphicon-plus"></i></a>
+          </span>
+        </div>
+        <ul class="list-group">
+          {% for book in books %}
+            <li class="list-group-item">
+              <a href="{{ url_for('edit_book', book_id=book.id) }}">{{ book.name }}</a>
+
+              <div class="pull-right remove-item" style="display: none;">
+                <form action="{{ url_for('remove_book', book_id=book.id) }}" method="post">
+                  <button class="btn btn-danger btn-xs" type="submit"><i class="glyphicon glyphicon-remove"></i></button>
+                </form>
+              </div>
+            </li>
+          {% else %}
+            <li class="list-group-item">No books.</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
     <div class="col-sm-6">
-      <h4>Authors</h4>
-      <ul>
-        {% for author in authors %}
-          <li>{{ author.fullname }}</li>
-        {% else %}
-          <li>No authors.</li>
-        {% endfor %}
-      </ul>
-      <a href="{{ url_for('add_author') }}" class="btn btn-primary">Add author</a>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="panel-title">Authors</span>
+          <span class="pull-right">
+            <a href="{{ url_for('add_author') }}" class="btn btn-success btn-xs"><i class="glyphicon glyphicon-plus"></i></a>
+          </span>
+        </div>
+        <ul class="list-group">
+          {% for author in authors %}
+            <li class="list-group-item">
+              <a href="{{ url_for('edit_author', author_id=author.id) }}">{{ author.fullname }}</a>
+
+              <div class="pull-right remove-item" style="display: none;">
+                <form action="{{ url_for('remove_author', author_id=author.id) }}" method="post">
+                  <button class="btn btn-danger btn-xs" type="submit"><i class="glyphicon glyphicon-remove"></i></button>
+                </form>
+              </div>
+            </li>
+          {% else %}
+            <li class="list-group-item">No authors.</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
   </div>
 {% endblock %}

@@ -51,15 +51,14 @@ BookForm = model_form(Book, base_class=Form, db_session=db.session)
 def index():
     authors = Author.query.all()
     books = Book.query.all()
-
     return render_template('index.html', authors=authors, books=books)
 
 
-@app.route('/add_book', methods=['GET', 'POST'])
+@app.route('/books/new', methods=['GET', 'POST'])
 def add_book():
     form = BookForm(request.form)
     if form.validate_on_submit():
-        book = Book(name=form.name.data)
+        book = Book(form.name.data)
         db.session.add(book)
         db.session.commit()
         flash('Book has been added.')
@@ -67,7 +66,28 @@ def add_book():
     return render_template('add_book.html', form=form)
 
 
-@app.route('/add_author', methods=['GET', 'POST'])
+@app.route("/books/<int:book_id>/edit", methods=['GET', 'POST'])
+def edit_book(book_id):
+    book = Book.query.get(book_id)
+    form = BookForm(request.form, obj=book)
+    if form.validate_on_submit():
+        form.populate_obj(book)
+        db.session.commit()
+        flash('Book has been updated.')
+        return redirect(url_for('index'))
+    return render_template("edit_book.html", book=book, form=form)
+
+
+@app.route("/books/<int:book_id>/remove", methods=['POST'])
+def remove_book(book_id):
+    book = Book.query.get(book_id)
+    db.session.delete(book)
+    db.session.commit()
+    flash('Book has been deleted.')
+    return redirect(url_for('index'))
+
+
+@app.route('/authors/new', methods=['GET', 'POST'])
 def add_author():
     form = AuthorForm(request.form)
     if form.validate_on_submit():
@@ -77,6 +97,27 @@ def add_author():
         flash('Book has been added.')
         return redirect(url_for('index'))
     return render_template('add_author.html', form=form)
+
+
+@app.route("/author/<int:author_id>/edit")
+def edit_author(author_id):
+    author = Author.query.get(author_id)
+    form = AuthorForm(obj=author)
+    if form.validate_on_submit():
+        db.session.add(author)
+        db.session.commit()
+        flash('Author has been updated.')
+        return redirect(url_for('index'))
+    return render_template("edit_author.html", form=form)
+
+
+@app.route("/authors/<int:author_id>/remove", methods=['POST'])
+def remove_author(author_id):
+    author = Author.query.get(author_id)
+    db.session.delete(author)
+    db.session.commit()
+    flash('Author has been deleted.')
+    return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])

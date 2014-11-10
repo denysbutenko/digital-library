@@ -1,3 +1,5 @@
 $(function () {
-  console.log('Javascript loaded.');
+  $('.list-group-item').hover(function(){
+    $(this).find('.remove-item').toggle();
+  });
 });
