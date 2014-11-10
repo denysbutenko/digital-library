@@ -12,7 +12,10 @@ from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 
-db_path = 'sqlite:///' + os.path.join(app.root_path, 'database.db')
+try:
+    db_path = os.environ['DATABASE_URL']
+except KeyError:
+    db_path = 'sqlite:///' + os.path.join(app.root_path, 'database.db')
 
 CONFIG_DICT = dict(
     SQLALCHEMY_DATABASE_URI=db_path,
