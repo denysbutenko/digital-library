@@ -15,5 +15,27 @@
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="panel-title">Books</span>
+        </div>
+        <ul class="list-group">
+          {% for book in author.books %}
+            <li class="list-group-item">
+              <a href="{{ url_for('edit_book', book_id=book.id) }}">{{ book.name }}</a>
+
+              <div class="pull-right remove-item" style="display: none;">
+                <form action="{{ url_for('remove_book', book_id=book.id) }}" method="post">
+                  <button class="btn btn-danger btn-xs" type="submit"><i class="glyphicon glyphicon-remove"></i></button>
+                </form>
+              </div>
+            </li>
+          {% else %}
+            <li class="list-group-item">No books.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
   </div>
 {% endblock %}

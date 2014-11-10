@@ -141,7 +141,7 @@ def edit_author(author_id):
         db.session.commit()
         flash('Author has been updated.')
         return redirect(url_for('index'))
-    return render_template("edit_author.html", form=form)
+    return render_template("edit_author.html", form=form, author=author)
 
 
 @app.route("/authors/<int:author_id>/remove", methods=['POST'])
