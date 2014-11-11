@@ -97,6 +97,11 @@ def init_db():
     for book_name in books:
         book = Book(book_name)
         db.session.add(book)
+    mark_lutz = Author.query.filter_by(fullname="Mark Lutz").first()
+    mark_lutz.books.append(Book.query.filter_by(name="Learning Python").first())
+    mark_pilgrim = Author.query.filter_by(fullname="Mark Pilgrim").first()
+    mark_pilgrim.books.append(Book.query.filter_by(name="Dive into Python 2").first())
+    mark_pilgrim.books.append(Book.query.filter_by(name="Dive into Python 3").first())
     db.session.commit()
 
 
