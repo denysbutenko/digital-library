@@ -5,6 +5,7 @@ from flask import Flask
 from flask import render_template, request, flash, redirect, session, url_for
 from flask.ext.wtf import Form
 from flask.ext.sqlalchemy import SQLAlchemy
+from wtforms import widgets, SelectMultipleField
 from wtforms import StringField, SelectField
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.validators import DataRequired
@@ -75,8 +76,20 @@ class Book(db.Model):
 flask_whooshalchemy.whoosh_index(app, Author)
 flask_whooshalchemy.whoosh_index(app, Book)
 
-AuthorForm = model_form(Author, base_class=Form, db_session=db.session)
-BookForm = model_form(Book, base_class=Form, db_session=db.session)
+AuthorFormBase = model_form(Author, base_class=Form, db_session=db.session)
+BookFormBase = model_form(Book, base_class=Form, db_session=db.session)
+
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
+
+class AuthorForm(AuthorFormBase):
+    books = MultiCheckboxField(coerce=int)
+
+
+class BookForm(BookFormBase):
+    authors = MultiCheckboxField(coerce=int)
 
 
 class SearchForm(Form):
@@ -143,7 +156,10 @@ def add_book():
 def edit_book(book_id):
     book = Book.query.get(book_id)
     form = BookForm(request.form, obj=book)
+    form.authors.choices = [(author.id, author.fullname) for author in Author.query.order_by('fullname')]
+    form.authors.data = [author.id for author in book.authors]
     if form.validate_on_submit():
+        form.authors.data = [Author.query.get(author_id) for author_id in request.form.getlist('authors')]
         form.populate_obj(book)
         db.session.commit()
         flash('Book has been updated.')
@@ -174,13 +190,16 @@ def add_author():
     return render_template('add_author.html', form=form)
 
 
-@app.route("/author/<int:author_id>/edit")
+@app.route("/author/<int:author_id>/edit", methods=['GET', 'POST'])
 @login_required
 def edit_author(author_id):
     author = Author.query.get(author_id)
     form = AuthorForm(obj=author)
+    form.books.choices = [(book.id, book.name) for book in Book.query.order_by('name')]
+    form.books.data = [book.id for book in author.books]
     if form.validate_on_submit():
-        db.session.add(author)
+        form.books.data = [Book.query.get(book_id) for book_id in request.form.getlist('books')]
+        form.populate_obj(author)
         db.session.commit()
         flash('Author has been updated.')
         return redirect(url_for('index'))

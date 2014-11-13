@@ -12,6 +12,10 @@
           <label for="{{ form.fullname.id }}" class="control-label">{{ form.fullname.label }}</label>
           {{ form.fullname(class_="form-control") }}
         </div>
+        <div class="form-group">
+          <label for="{{ form.books.id }}" class="control-label">{{ form.books.label }}</label>
+          {{ form.books(class_="list-unstyled") }}
+        </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
