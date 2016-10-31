@@ -11,3 +11,6 @@ venv/bin/pip install -r requirements.txt
 python create_db.py
 python app.py
 ```
+
+# Deploy to heroku
+...
