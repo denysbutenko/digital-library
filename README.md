@@ -1,4 +1,4 @@
-Digital Library for prom.ua
+Digital Library based on Flask
 ================
 
 # How to install
