@@ -1,4 +1,4 @@
-Digital Library based on Flask
+Digital Library a demo that uses Python/Flask
 ================
 
 # How to install
@@ -11,6 +11,3 @@ venv/bin/pip install -r requirements.txt
 python create_db.py
 python app.py
 ```
-
-# Deploy to heroku
-...
